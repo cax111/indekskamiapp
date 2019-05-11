@@ -11,22 +11,36 @@ use App\crudParameter;
 class jawabanInstrumentController extends Controller
 {
     public function tampilHasilAssessment(){
+      // cek apakah role assessor atau bukan
+      if(\Auth::user()->role != "assessor"){
+        redirect()->to('/')->send();
+      }
+
+      // inisialisasi data  dari model
       $dataJawabanInstrument = crudJawabanInstrument::select('*')
                                                       ->join(\DB::raw('(tb_detail_instrument inner join (tb_instrument inner join tb_variable on tb_instrument.id_variable=tb_variable.id_variable) on tb_instrument.id_instrument=tb_detail_instrument.id_instrument)'),'tb_detail_instrument.id_detail_instrument','tb_jawaban_instrument.id_detail_instrument')
                                                       ->join(\DB::raw('(tb_user inner join tb_responden on tb_responden.id_user=tb_user.id_user)'),'tb_user.id_user','tb_jawaban_instrument.id_user')
                                                       ->get();
       $dataVariable = crudVariable::all();
+      // mengembalikan nilai fungsi dengan view dan data yang disisipkan.
       return view('tampil-hasil-assessment',['data'=>$dataJawabanInstrument, 'data2'=>$dataVariable]);
     }
+
     public function tampilDetailHasilAssessment($id){
+      // cek apakah role assessor atau bukan
+      if(\Auth::user()->role != "assessor"){
+        redirect()->to('/')->send();
+      }
       $dataJawabanInstrument = crudJawabanInstrument::select('*')
                                                     ->join(\DB::raw('(tb_detail_instrument inner join (tb_instrument inner join tb_variable on tb_instrument.id_variable=tb_variable.id_variable) on tb_instrument.id_instrument=tb_detail_instrument.id_instrument)'),'tb_detail_instrument.id_detail_instrument','tb_jawaban_instrument.id_detail_instrument')
                                                     ->join(\DB::raw('(tb_user inner join tb_responden on tb_responden.id_user=tb_user.id_user)'),'tb_user.id_user','tb_jawaban_instrument.id_user')
-                                                    ->where('tb_jawaban_instrument.id_user',1)
+                                                    ->where('tb_jawaban_instrument.id_user',$id)
+                                                    ->orderBy('tb_variable.id_variable', 'ASC')
                                                     ->get();
       $dataVariable = crudVariable::all();
       return view('tampil-detail-hasil-assessment',['data'=>$dataJawabanInstrument, 'data2'=>$dataVariable, 'get'=>$id]);
     }
+
     public function prosesIsiJawabanInstrument(Request $request){
         $instruments = crudParameter::all();
         foreach($request->status AS $status){
@@ -58,7 +72,7 @@ class jawabanInstrumentController extends Controller
                 if(empty($ambilId)){
                   $id_jawaban_instrument++;
                 }else{
-                    $id_jawaban_instrument = $ambilId['id_jawaban_instrument'] + 1;
+                  $id_jawaban_instrument = $ambilId['id_jawaban_instrument'] + 1;
                 }
                 foreach($request->status AS $status){
                   $pisahData = explode('-',$status);

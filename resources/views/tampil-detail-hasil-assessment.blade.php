@@ -1,7 +1,4 @@
 @include('templates.header')
-@if(Auth::user()->role != "assessor")
-  @php redirect()->to('/')->send(); @endphp
-@endif
 <div class="content">
   <div class="container-fluid">
     <div class="row">
@@ -17,31 +14,30 @@
               $i = 0;
               $ambilId = null;
               $ambilIdVar = null;
-              $skor = [0 => 0];
+              $skor = [];
               $dataku = [];
             @endphp
 
             @foreach($data AS $tampil)
-              @if($tampil->id_variable != $ambilIdVar)
-                @php
-                  $ambilIdVar = $tampil->id_variable;
-                  $i++;
-                @endphp
-              @endif
-              @if(empty($skor[$i]))
-                @php
-                  $skor[$i] = $tampil->skor;
-                @endphp
-              @else
-                @php $skor[$i] += $tampil->skor; @endphp
-              @endif
+              @foreach($data2 AS $t)
+                @if($t->id_variable == $tampil->id_variable)
+                  @if(empty($skor[$i]))
+                    @php
+                      $skor[$i] = $tampil->skor;
+                    @endphp
+                  @else
+                    @php $skor[$i] += $tampil->skor; @endphp
+                  @endif
+                @else
+                  @php
+                    $i++;
+                  @endphp
+                @endif
+              @endforeach
 
-              @if($ambilId != $tampil->id_user)
-                @php
-                  $dataku = $tampil;
-                  $ambilId = $tampil->id_user;
-                @endphp
-              @endif
+              @php
+                $dataku = $tampil;
+              @endphp
             @endforeach
               <div class="col-md-12">
                 <div class="col-md-6">
@@ -92,10 +88,15 @@
                       <td>:</td>
                       <td>
                         @php $i=0; @endphp
-                        {{$skor[$i]}}
+                        @if(!empty($skor[$i]))
+                          {{$skor[$i]}}
+                        @else
+                          {{0}}
+                        @endif
                       </td>
                       <th>Kategori SE</th>
                       <td colspan="3">
+                      @if(!empty($skor[$i]))
                         @if($skor[$i]>=10 && $skor[$i]<=15)
                           Rendah
                         @elseif($skor[$i]>=16 && $skor[$i]<=34)
@@ -103,6 +104,7 @@
                         @else
                           Strategis
                         @endif
+                      @endif
                       </td>
                     </tr>
                     <tr>
@@ -162,7 +164,7 @@
                 <div class="col-md-12">
                   <hr />
                   <div style="margin:10px" class="stats">
-                      <a class="btn btn-warning" href="/tampil-variable">Kembali</a>
+                      <a class="btn btn-warning" href="/tampil-hasil-assessment">Kembali</a>
                   </div>
                 </div>
               </div>

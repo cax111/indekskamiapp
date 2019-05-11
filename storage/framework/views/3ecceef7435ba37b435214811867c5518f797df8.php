@@ -1,7 +1,4 @@
 <?php echo $__env->make('templates.header', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
-<?php if(Auth::user()->role != "assessor"): ?>
-  <?php  redirect()->to('/')->send();  ?>
-<?php endif; ?>
 <div class="content">
   <div class="container-fluid">
     <div class="row">
@@ -17,31 +14,30 @@
               $i = 0;
               $ambilId = null;
               $ambilIdVar = null;
-              $skor = [0 => 0];
+              $skor = [];
               $dataku = [];
              ?>
 
             <?php $__currentLoopData = $data; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $tampil): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-              <?php if($tampil->id_variable != $ambilIdVar): ?>
-                <?php 
-                  $ambilIdVar = $tampil->id_variable;
-                  $i++;
-                 ?>
-              <?php endif; ?>
-              <?php if(empty($skor[$i])): ?>
-                <?php 
-                  $skor[$i] = $tampil->skor;
-                 ?>
-              <?php else: ?>
-                <?php  $skor[$i] += $tampil->skor;  ?>
-              <?php endif; ?>
+              <?php $__currentLoopData = $data2; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $t): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <?php if($t->id_variable == $tampil->id_variable): ?>
+                  <?php if(empty($skor[$i])): ?>
+                    <?php 
+                      $skor[$i] = $tampil->skor;
+                     ?>
+                  <?php else: ?>
+                    <?php  $skor[$i] += $tampil->skor;  ?>
+                  <?php endif; ?>
+                <?php else: ?>
+                  <?php 
+                    $i++;
+                   ?>
+                <?php endif; ?>
+              <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
-              <?php if($ambilId != $tampil->id_user): ?>
-                <?php 
-                  $dataku = $tampil;
-                  $ambilId = $tampil->id_user;
-                 ?>
-              <?php endif; ?>
+              <?php 
+                $dataku = $tampil;
+               ?>
             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
               <div class="col-md-12">
                 <div class="col-md-6">
@@ -93,11 +89,17 @@
                       <td>:</td>
                       <td>
                         <?php  $i=0;  ?>
-                        <?php echo e($skor[$i]); ?>
+                        <?php if(!empty($skor[$i])): ?>
+                          <?php echo e($skor[$i]); ?>
 
+                        <?php else: ?>
+                          <?php echo e(0); ?>
+
+                        <?php endif; ?>
                       </td>
                       <th>Kategori SE</th>
                       <td colspan="3">
+                      <?php if(!empty($skor[$i])): ?>
                         <?php if($skor[$i]>=10 && $skor[$i]<=15): ?>
                           Rendah
                         <?php elseif($skor[$i]>=16 && $skor[$i]<=34): ?>
@@ -105,6 +107,7 @@
                         <?php else: ?>
                           Strategis
                         <?php endif; ?>
+                      <?php endif; ?>
                       </td>
                     </tr>
                     <tr>
@@ -165,7 +168,7 @@
                 <div class="col-md-12">
                   <hr />
                   <div style="margin:10px" class="stats">
-                      <a class="btn btn-warning" href="/tampil-variable">Kembali</a>
+                      <a class="btn btn-warning" href="/tampil-hasil-assessment">Kembali</a>
                   </div>
                 </div>
               </div>

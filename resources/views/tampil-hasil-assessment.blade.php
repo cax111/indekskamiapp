@@ -1,7 +1,4 @@
 @include('templates.header')
-@if(Auth::user()->role != "assessor")
-  @php redirect()->to('/')->send(); @endphp
-@endif
 <div class="content">
   <div class="container-fluid">
     <div class="row">
@@ -41,24 +38,26 @@
                         <td colspan="4" class="text-center">Data Instrument Belum diisi.</td>
                       </tr>
                       @else
-                      <!-- Menghitung berapa variable yang sudah diisi -->
-                        @foreach($data AS $tampil)
-                          @if(!empty($ambilIdVar))
-                           @if($ambilIdVar[$j] != $tampil->id_variable)
-                            @php
-                              $ambilIdVar[] = $tampil->id_variable;
-                              $j++;
-                            @endphp
-                           @endif
-                          @else
-                            @php
-                              $ambilIdVar[] = $tampil->id_variable;
-                            @endphp
-                          @endif
-                        @endforeach
-                      <!--  -->
                         @foreach($data AS $tampil)
                           @if($ambilId != $tampil->id_user)
+                          <!-- Menghitung berapa variable yang sudah diisi -->
+                            @foreach($data AS $t)
+                              @if($ambilId != $t->id_user)
+                                @if(!empty($ambilIdVar))
+                                 @if($ambilIdVar[$j] != $t->id_variable)
+                                  @php
+                                    $ambilIdVar[] = $t->id_variable;
+                                    $j++;
+                                  @endphp
+                                 @endif
+                                @else
+                                  @php
+                                    $ambilIdVar[] = $t->id_variable;
+                                  @endphp
+                                @endif
+                              @endif
+                            @endforeach
+                          <!-- -----------------selesai --------------->
                             <tr>
                               <td>{{$i++}}</td>
                               <td>{!!$ambilId=$tampil->departemen!!} - {!!$ambilId=$tampil->direktorat!!} - {!!$ambilId=$tampil->satuan_kerja!!}</td>
@@ -87,11 +86,15 @@
                               </td>
                               <td>
                                 <div>
-                                  <a class="btn btn-info" href="/tampil-detail-hasil-assessment/{{$tampil->id_jawaban_instrument}}">Lihat Detail Hasil Assessment</a>
+                                  <a class="btn btn-info" href="/tampil-detail-hasil-assessment/{{$tampil->id_user}}">Lihat Detail Hasil Assessment</a>
                                 </div>
                               </td>
                             </tr>
-                            @php $ambilId = $tampil->id_user; @endphp
+                            @php
+                            $ambilId = $tampil->id_user;
+                            $ambilIdVar = [];
+                            $j = 0;
+                            @endphp
                           @endif
                         @endforeach
                       @endif

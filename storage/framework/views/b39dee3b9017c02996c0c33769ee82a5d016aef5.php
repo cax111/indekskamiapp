@@ -1,7 +1,4 @@
 <?php echo $__env->make('templates.header', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
-<?php if(Auth::user()->role != "assessor"): ?>
-  <?php  redirect()->to('/')->send();  ?>
-<?php endif; ?>
 <div class="content">
   <div class="container-fluid">
     <div class="row">
@@ -42,24 +39,26 @@
                         <td colspan="4" class="text-center">Data Instrument Belum diisi.</td>
                       </tr>
                       <?php else: ?>
-                      <!-- Menghitung berapa variable yang sudah diisi -->
-                        <?php $__currentLoopData = $data; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $tampil): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                          <?php if(!empty($ambilIdVar)): ?>
-                           <?php if($ambilIdVar[$j] != $tampil->id_variable): ?>
-                            <?php 
-                              $ambilIdVar[] = $tampil->id_variable;
-                              $j++;
-                             ?>
-                           <?php endif; ?>
-                          <?php else: ?>
-                            <?php 
-                              $ambilIdVar[] = $tampil->id_variable;
-                             ?>
-                          <?php endif; ?>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                      <!--  -->
                         <?php $__currentLoopData = $data; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $tampil): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                           <?php if($ambilId != $tampil->id_user): ?>
+                          <!-- Menghitung berapa variable yang sudah diisi -->
+                            <?php $__currentLoopData = $data; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $t): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                              <?php if($ambilId != $t->id_user): ?>
+                                <?php if(!empty($ambilIdVar)): ?>
+                                 <?php if($ambilIdVar[$j] != $t->id_variable): ?>
+                                  <?php 
+                                    $ambilIdVar[] = $t->id_variable;
+                                    $j++;
+                                   ?>
+                                 <?php endif; ?>
+                                <?php else: ?>
+                                  <?php 
+                                    $ambilIdVar[] = $t->id_variable;
+                                   ?>
+                                <?php endif; ?>
+                              <?php endif; ?>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                          <!-- -----------------selesai --------------->
                             <tr>
                               <td><?php echo e($i++); ?></td>
                               <td><?php echo $ambilId=$tampil->departemen; ?> - <?php echo $ambilId=$tampil->direktorat; ?> - <?php echo $ambilId=$tampil->satuan_kerja; ?></td>
@@ -90,11 +89,15 @@
                               </td>
                               <td>
                                 <div>
-                                  <a class="btn btn-info" href="/tampil-detail-hasil-assessment/<?php echo e($tampil->id_jawaban_instrument); ?>">Lihat Detail Hasil Assessment</a>
+                                  <a class="btn btn-info" href="/tampil-detail-hasil-assessment/<?php echo e($tampil->id_user); ?>">Lihat Detail Hasil Assessment</a>
                                 </div>
                               </td>
                             </tr>
-                            <?php  $ambilId = $tampil->id_user;  ?>
+                            <?php 
+                            $ambilId = $tampil->id_user;
+                            $ambilIdVar = [];
+                            $j = 0;
+                             ?>
                           <?php endif; ?>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                       <?php endif; ?>
